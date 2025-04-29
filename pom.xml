@@ -29,18 +29,27 @@
         </dependency>
 
         <!-- JUnit 5 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.12.1</version>
-            <scope>test</scope>
-        </dependency>
 
-        <!-- Commons IO (opcional, si lo necesitas) -->
+
+        <!-- Commons IO (opcional, útil para manejar archivos) -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
+        </dependency>
+
+        <!-- Allure Core -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-java-commons</artifactId>
+            <version>2.24.0</version>
+        </dependency>
+
+        <!-- Allure para JUnit5 -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.24.0</version>
         </dependency>
 
     </dependencies>
@@ -48,17 +57,25 @@
     <build>
         <plugins>
 
+            <!-- Plugin para ejecutar tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
+                    <useModulePath>false</useModulePath> <!-- Ayuda con problemas en Java 17+ -->
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                 </configuration>
             </plugin>
 
-        </plugins>
+            <!-- Plugin para generar reportes de Allure -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.11.2</version>
+            </plugin>
 
+        </plugins>
     </build>
 
 </project>

@@ -1,3 +1,6 @@
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 
 
@@ -13,56 +16,88 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SauceLabsTest {
-        private WebDriver driver;
+    private static final Logger log = LoggerFactory.getLogger(SauceLabsTest.class);
+    private WebDriver driver;
+     WebElement inputUserName;
+     WebElement inputPassWord;
+     WebElement btnLogin;
+     WebElement labelMessage;
 
-        @BeforeEach
+    @BeforeEach
         public void setUp() {
-            cleanFolder("./screenshots");
+           cleanFolder("./screenshots");
             WebDriverManager.chromedriver().setup();
             driver = new ChromeDriver();
-        }
-
-        @Test
-        public void testLoginSauceLabs() throws InterruptedException {
-            // Abrir Google
             driver.manage().window().maximize();
+            Allure.step("Abro la página de login");
             driver.get("https://www.saucedemo.com/");
-            takeScreenshot("testLoginSauceLabs_success_web");
+           takeScreenshot("testLoginSauceLabs_success_web");
+        }
+        public void login(String user, String pass){
+            inputUserName = driver.findElement(By.name("user-name"));
+            inputUserName.sendKeys(user);
 
-            // Encontrar el campo de userName
-            WebElement userName = driver.findElement(By.name("user-name"));
-            // Ingresar una userName
-            userName.sendKeys("standard_user");
-            // Encontrar el campo de passWord
-            WebElement passWord = driver.findElement(By.id("password"));
-            // Ingresar una userName
-            passWord.sendKeys("secret_sauce");
-            //Encontrar boton login
-            WebElement btnLogin = driver.findElement(By.id("login-button"));
-            // Ingresar login
+            inputPassWord = driver.findElement(By.id("password"));
+            inputPassWord.sendKeys(pass);
+
+            btnLogin = driver.findElement(By.id("login-button"));
             takeScreenshot("testLoginSauceLabs_success_datos_ingresados");
             btnLogin.click();
 
 
-            // Esperar un poco para visualizar los resultados (puedes mejorar esto con WebDriverWait)
-            Thread.sleep(3000);
 
-            // Capturar y mostrar los títulos de los primeros resultados
-            for (WebElement result : driver.findElements(By.className("app_logo"))) {
-                System.out.println("el texto encontrado es:" +result.getText());
-            }
-
-            takeScreenshot("testLoginSauceLabs_success");
-            // Verificar que aparecen resultados
-           // Assertions.assertTrue(driver.findElements(By.cssSelector("h3")).size() > 0);
         }
+        @Test
+        public void testLoginSauceLabsPass() throws InterruptedException {
+            login("standard_user","secret_sauce");
+            Thread.sleep(3000);
+             takeScreenshot("testLoginSauceLabs_success");
+
+
+        }
+    @Test
+    public void testLoginSauceLabsLocked() throws InterruptedException {
+        login("locked_out_user","secret_sauce");
+        Thread.sleep(3000);
+        labelMessage = driver.findElement(By.xpath("//*[@id='login_button_container']/div/form/div[3]/h3"));
+        System.out.println("mensaje obtenido:" +labelMessage.getText());
+         takeScreenshot("testLoginSauceLabs_success_datos_ingresados_incorrectos");
+        Assertions.assertEquals(labelMessage.getText(),"Epic sadface: Sorry, this user has been locked out.");
+    }
+    @Test
+    public void testLoginSauceLabsProblemUser() throws InterruptedException {
+        login("problem_user","secret_sauce");
+        Thread.sleep(3000);
+         takeScreenshot("testLoginSauceLabs_success_datos_ingresados_problem_user");
+    }
+    @Test
+    public void testLoginSauceLabsPerformanceUser() throws InterruptedException {
+        login("performance_glitch_user","secret_sauce");
+        Thread.sleep(3000);
+        takeScreenshot("testLoginSauceLabs_success_datos_ingresados_performance_user");
+    }
+    @Test
+    public void testLoginSauceLabsErrorUser() throws InterruptedException {
+        login("error_user","secret_sauce");
+        Thread.sleep(3000);
+        takeScreenshot("testLoginSauceLabs_success_datos_ingresados_error_user");
+    }
+    @Test
+    public void testLoginSauceLabsVisualUser() throws InterruptedException {
+        login("visual_user","secret_sauce");
+        Thread.sleep(3000);
+        takeScreenshot("testLoginSauceLabs_success_datos_ingresados_visual_user");
+    }
 
     public void takeScreenshot(String testName) {
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
@@ -74,6 +109,7 @@ public class SauceLabsTest {
             e.printStackTrace();
         }
     }
+
     public static void cleanFolder(String folderPath) {
         File folder = new File(folderPath);
         if (folder.exists()) {
